@@ -319,59 +319,160 @@ namespace sistemaCorporativo.FORMS.cadAgente
                                 string ceptxt = txtCep.Text;
                                 if (Regex.IsMatch(ceptxt, verificarNum))
                                 {
-                                    //Regex Logradouro
-                                    string logtxt = txtLogradouro.Text;
-                                    if (Regex.IsMatch(logtxt, verificarTexto))
-                                    {
                                         //Checar Numero
                                         string numeroCasa = txtNumero.Text;
                                         if (Regex.IsMatch(numeroCasa, verificarNum))
                                         {
-                                                //Checar Bairro
-                                                string bairrotxt = txtBairro.Text;
-                                                if (Regex.IsMatch(bairrotxt, verificarTexto))
+                                                //Checar Cidade
+                                                string cidadetxt = txtCidade.Text;
+                                                if (Regex.IsMatch(cidadetxt, verificarTexto))
                                                 {
-                                                    //Checar Cidade
-                                                    string cidadetxt = txtCidade.Text;
-                                                    if (Regex.IsMatch(cidadetxt, verificarTexto))
+                                                    //Checar se o armamento esta presente
+                                                    if (Armamento == true)
                                                     {
-                                                        //Checar se o armamento esta presente
-                                                        if (Armamento == true)
+                                                        if (txtRegistro.Text == "" || cmbTipo.Text == "" || txtMarca.Text == "" || txtCalibre.Text == "" || txtNumSerie.Text == "" || txtDataExpedicao.Text == "")
                                                         {
-                                                            if (txtRegistro.Text == "" || cmbTipo.Text == "" || txtMarca.Text == "" || txtCalibre.Text == "" || txtNumSerie.Text == "" || txtDataExpedicao.Text == "")
-                                                            {
-                                                               await this.ShowMessageAsync("Aviso", "Preencha todos os campos relacionados ao armamento!");
-                                                            }
+                                                            await this.ShowMessageAsync("Aviso", "Preencha todos os campos relacionados ao armamento!");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //Checar se a impressão foi inserida (OBRIGATORIO)
+                                                        if (checkFinger == false)
+                                                        {
+                                                            await this.ShowMessageAsync("Aviso", "A impressão digital é obrigatória para o cadastro do agente!");
                                                         }
                                                         else
                                                         {
-                                                            //Checar se a impressão foi inserida (OBRIGATORIO)
-                                                            if (checkFinger == false)
+                                                            if (id == null)
                                                             {
-                                                                await this.ShowMessageAsync("Aviso", "A impressão digital é obrigatória para o cadastro do agente!");
+                                                                //C-A-D-A-S-T-R-A-R
+                                                                //Checar se foi upado uma Foto
+                                                                if (checkFoto == true)
+                                                                {
+                                                                    //--FOTO PERFIL
+                                                                    //Criar a pasta para armazenar fotos do perfil
+                                                                    //Pegar o folder da aplicação
+                                                                    var applicationPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                                                                    var dir = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPath, "ProfilePicture"));
+                                                                    if (!dir.Exists)
+                                                                        dir.Create();
+                                                                    //Copiar para o diretório do sistema
+                                                                    namefoto = System.IO.Path.GetFileName(imagepath);
+                                                                    destinationPathFoto = GetDestinationPath(namefoto, "ProfilePicture");
+                                                                    File.Copy(imagepath, destinationPathFoto, true);
+
+                                                                }
+
+                                                                //--IMPRESSÃODIGITAL
+                                                                //Criar a pasta para armazenar a impressão
+                                                                //Pegar o folder da aplicação
+                                                                var applicationPathF = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                                                                var dirf = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPathF, "FingerPrints"));
+                                                                if (!dirf.Exists)
+                                                                    dirf.Create();
+                                                                //Copiar para o diretório do sistema
+                                                                namefinger = System.IO.Path.GetFileName(fingerpath);
+                                                                destinationPathFinger = GetDestinationPath(namefinger, "FingerPrints");
+                                                                File.Copy(fingerpath, destinationPathFinger, true);
+
+                                                                //Acessar a classe TO 
+                                                                Agente objAgente = new Agente();
+                                                                objAgente.setNome(txtNome.Text);
+                                                                if (rdbMasc.IsChecked == true)
+                                                                {
+                                                                    objAgente.setSexo("Masculino");
+                                                                }
+                                                                else
+                                                                {
+                                                                    objAgente.setSexo("Feminino");
+                                                                }
+
+                                                                //Coletar dados digitados
+                                                                objAgente.setNascismento(txtNascimento.Text);
+                                                                objAgente.setRg(txtRg.Text);
+                                                                objAgente.setCpf(txtCpf.Text);
+                                                                objAgente.settipoSanguineo(cmbTipoSangue.Text);
+                                                                objAgente.setEtnia(cmbEtnia.Text);
+                                                                objAgente.setestadoCivil(cmbEstadoCivil.Text);
+                                                                objAgente.setCargo(cmbCargo.Text);
+                                                                objAgente.setcep(txtCep.Text);
+                                                                objAgente.setLogradouro(txtLogradouro.Text);
+                                                                objAgente.setNumero(txtNumero.Text);
+                                                                objAgente.setComplemento(txtComplemento.Text);
+                                                                objAgente.setBairro(txtBairro.Text);
+                                                                objAgente.setCidade(txtCidade.Text);
+                                                                objAgente.setuf(cmbUf.Text);
+                                                                objAgente.setFoto(destinationPathFoto);
+                                                                objAgente.setimpressaodigital(destinationPathFinger);
+
+                                                                //Criando Conexão Com o banco de dados
+                                                                OracleConnection Oracon = new OracleConnection(oradb);
+
+                                                                //Ações 
+                                                                try
+                                                                {
+                                                                    //Abrir conexão com o banco de dados e inserir dados digitados
+                                                                    Oracon.Open();
+                                                                    OracleCommand insertCommand = new OracleCommand(SQL_INSERT, Oracon);
+                                                                    insertCommand.Parameters.Add("nome", objAgente.getNome());
+                                                                    insertCommand.Parameters.Add("sexo", objAgente.getSexo());
+                                                                    insertCommand.Parameters.Add("data_nascimento", objAgente.getNascimento());
+                                                                    insertCommand.Parameters.Add("rg", objAgente.getRg());
+                                                                    insertCommand.Parameters.Add("cpf", objAgente.getCpf());
+                                                                    insertCommand.Parameters.Add("tipo_sanguineo", objAgente.gettipoSanguineo());
+                                                                    insertCommand.Parameters.Add("etnia", objAgente.getEtnia());
+                                                                    insertCommand.Parameters.Add("estado_civil", objAgente.getestadoCivil());
+                                                                    insertCommand.Parameters.Add("cep", objAgente.getcep());
+                                                                    insertCommand.Parameters.Add("logradouro", objAgente.getLogradouro());
+                                                                    insertCommand.Parameters.Add("numero", objAgente.getNumero());
+                                                                    insertCommand.Parameters.Add("complemento", objAgente.getComplemento());
+                                                                    insertCommand.Parameters.Add("bairro", objAgente.getBairro());
+                                                                    insertCommand.Parameters.Add("cidade", objAgente.getCidade());
+                                                                    insertCommand.Parameters.Add("uf", objAgente.getuf());
+                                                                    insertCommand.Parameters.Add("fotoagente", objAgente.getFoto());
+                                                                    insertCommand.Parameters.Add("impressaoagente", objAgente.getimpressaDigital());
+                                                                    insertCommand.Parameters.Add("cargo", objAgente.getCargo());
+                                                                    //ESSE CAMPO ABAIXO NÃO É OBRIGATÓRIO POIS SERÁ PREENCHIDO AUTOMATICAMENTE
+                                                                    //insertCommand.Parameters.Add("status", objAgente.getStatus());
+                                                                    insertCommand.ExecuteNonQuery();
+
+
+                                                                    //Fechar conexão com o banco de dados
+                                                                    Oracon.Close();
+                                                                    await this.ShowMessageAsync("Aviso", "Agente cadastrado com sucesso!"); this.MetroWindow_Loaded(null, null);
+                                                                    this.btnLimpar_Click(null, null);
+                                                                    gConsultar.IsSelected = true;
+
+                                                                }
+                                                                catch (OracleException orclEx)
+                                                                {
+                                                                    System.Windows.MessageBox.Show(orclEx.Message);
+                                                                }
+
                                                             }
                                                             else
                                                             {
-                                                                if (id == null)
+                                                                //Checar Foto (alteração)
+                                                                if (alterPhoto == true)
                                                                 {
-                                                                    //C-A-D-A-S-T-R-A-R
-                                                                    //Checar se foi upado uma Foto
-                                                                    if (checkFoto == true)
-                                                                    {
-                                                                        //--FOTO PERFIL
-                                                                        //Criar a pasta para armazenar fotos do perfil
-                                                                        //Pegar o folder da aplicação
-                                                                        var applicationPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                                                                        var dir = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPath, "ProfilePicture"));
-                                                                        if (!dir.Exists)
-                                                                            dir.Create();
-                                                                        //Copiar para o diretório do sistema
-                                                                        namefoto = System.IO.Path.GetFileName(imagepath);
-                                                                        destinationPathFoto = GetDestinationPath(namefoto, "ProfilePicture");
-                                                                        File.Copy(imagepath, destinationPathFoto, true);
-                                                                   
-                                                                    }
+                                                                    //--FOTO PERFIL
+                                                                    //Criar a pasta para armazenar fotos do perfil
+                                                                    //Pegar o folder da aplicação
+                                                                    var applicationPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                                                                    var dir = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPath, "ProfilePicture"));
+                                                                    if (!dir.Exists)
+                                                                        dir.Create();
+                                                                    //Copiar para o diretório do sistema
+                                                                    namefoto = System.IO.Path.GetFileName(imagepath);
+                                                                    destinationPathFoto = GetDestinationPath(namefoto, "ProfilePicture");
+                                                                    File.Copy(imagepath, destinationPathFoto, true);
 
+                                                                }
+
+                                                                //Checar digital (alteração)
+                                                                if (alterFinger == true)
+                                                                {
                                                                     //--IMPRESSÃODIGITAL
                                                                     //Criar a pasta para armazenar a impressão
                                                                     //Pegar o folder da aplicação
@@ -384,223 +485,101 @@ namespace sistemaCorporativo.FORMS.cadAgente
                                                                     destinationPathFinger = GetDestinationPath(namefinger, "FingerPrints");
                                                                     File.Copy(fingerpath, destinationPathFinger, true);
 
-                                                                    //Acessar a classe TO 
-                                                                    Agente objAgente = new Agente();
-                                                                    objAgente.setNome(txtNome.Text);
-                                                                    if (rdbMasc.IsChecked == true)
-                                                                    {
-                                                                        objAgente.setSexo("Masculino");
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        objAgente.setSexo("Feminino");
-                                                                    }
+                                                                }
 
-                                                                    //Coletar dados digitados
-                                                                    objAgente.setNascismento(txtNascimento.Text);
-                                                                    objAgente.setRg(txtRg.Text);
-                                                                    objAgente.setCpf(txtCpf.Text);
-                                                                    objAgente.settipoSanguineo(cmbTipoSangue.Text);
-                                                                    objAgente.setEtnia(cmbEtnia.Text);
-                                                                    objAgente.setestadoCivil(cmbEstadoCivil.Text);
-                                                                    objAgente.setCargo(cmbCargo.Text);
-                                                                    objAgente.setcep(txtCep.Text);
-                                                                    objAgente.setLogradouro(txtLogradouro.Text);
-                                                                    objAgente.setNumero(txtNumero.Text);
-                                                                    objAgente.setComplemento(txtComplemento.Text);
-                                                                    objAgente.setBairro(txtBairro.Text);
-                                                                    objAgente.setCidade(txtCidade.Text);
-                                                                    objAgente.setuf(cmbUf.Text);
-                                                                    objAgente.setFoto(destinationPathFoto);
-                                                                    objAgente.setimpressaodigital(destinationPathFinger);
+                                                                //A-T-U-A-L-I-Z-A-R
+                                                                //Checar se foi upado uma Foto
+                                                                SQL_UPDATE = "update agente set NOME = :nome, SEXO = :sexo, DATA_NASCIMENTO = :data_nascimento, RG = :rg, CPF = :cpf, TIPO_SANGUINEO = :tipo_sanguineo, ETNIA = :etnia, ESTADO_CIVIL = :estado_civil, CEP = :cep, LOGRADOURO = :logradouro, NUMERO = :numero, COMPLEMENTO = :complemento, BAIRRO = :bairro, CIDADE = :cidade, UF = :uf, FOTOAGENTE = :fotoagente, IMPRESSAOAGENTE = :impressaoagente, CARGO = :cargo where id_Agente=" + id;
 
-                                                                    //Criando Conexão Com o banco de dados
-                                                                    OracleConnection Oracon = new OracleConnection(oradb);
-
-                                                                    //Ações 
-                                                                    try
-                                                                    {
-                                                                        //Abrir conexão com o banco de dados e inserir dados digitados
-                                                                        Oracon.Open();
-                                                                        OracleCommand insertCommand = new OracleCommand(SQL_INSERT, Oracon);
-                                                                        insertCommand.Parameters.Add("nome", objAgente.getNome());
-                                                                        insertCommand.Parameters.Add("sexo", objAgente.getSexo());
-                                                                        insertCommand.Parameters.Add("data_nascimento", objAgente.getNascimento());
-                                                                        insertCommand.Parameters.Add("rg", objAgente.getRg());
-                                                                        insertCommand.Parameters.Add("cpf", objAgente.getCpf());
-                                                                        insertCommand.Parameters.Add("tipo_sanguineo", objAgente.gettipoSanguineo());
-                                                                        insertCommand.Parameters.Add("etnia", objAgente.getEtnia());
-                                                                        insertCommand.Parameters.Add("estado_civil", objAgente.getestadoCivil());
-                                                                        insertCommand.Parameters.Add("cep", objAgente.getcep());
-                                                                        insertCommand.Parameters.Add("logradouro", objAgente.getLogradouro());
-                                                                        insertCommand.Parameters.Add("numero", objAgente.getNumero());
-                                                                        insertCommand.Parameters.Add("complemento", objAgente.getComplemento());
-                                                                        insertCommand.Parameters.Add("bairro", objAgente.getBairro());
-                                                                        insertCommand.Parameters.Add("cidade", objAgente.getCidade());
-                                                                        insertCommand.Parameters.Add("uf", objAgente.getuf());
-                                                                        insertCommand.Parameters.Add("fotoagente", objAgente.getFoto());
-                                                                        insertCommand.Parameters.Add("impressaoagente", objAgente.getimpressaDigital());
-                                                                        insertCommand.Parameters.Add("cargo", objAgente.getCargo());
-                                                                        //ESSE CAMPO ABAIXO NÃO É OBRIGATÓRIO POIS SERÁ PREENCHIDO AUTOMATICAMENTE
-                                                                        //insertCommand.Parameters.Add("status", objAgente.getStatus());
-                                                                        insertCommand.ExecuteNonQuery();
-
-
-                                                                        //Fechar conexão com o banco de dados
-                                                                        Oracon.Close();
-                                                                        await this.ShowMessageAsync("Aviso", "Agente cadastrado com sucesso!");this.MetroWindow_Loaded(null, null);
-                                                                        this.btnLimpar_Click(null, null);
-                                                                        gConsultar.IsSelected = true;
-
-                                                                    }
-                                                                    catch (OracleException orclEx)
-                                                                    {
-                                                                        System.Windows.MessageBox.Show(orclEx.Message);
-                                                                    }
-
+                                                                //Acessar a classe TO 
+                                                                Agente objAgente = new Agente();
+                                                                objAgente.setNome(txtNome.Text);
+                                                                if (rdbMasc.IsChecked == true)
+                                                                {
+                                                                    objAgente.setSexo("Masculino");
                                                                 }
                                                                 else
                                                                 {
-                                                                    //Checar Foto (alteração)
-                                                                    if (alterPhoto == true)
-                                                                    {
-                                                                        //--FOTO PERFIL
-                                                                        //Criar a pasta para armazenar fotos do perfil
-                                                                        //Pegar o folder da aplicação
-                                                                        var applicationPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                                                                        var dir = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPath, "ProfilePicture"));
-                                                                        if (!dir.Exists)
-                                                                            dir.Create();
-                                                                        //Copiar para o diretório do sistema
-                                                                        namefoto = System.IO.Path.GetFileName(imagepath);
-                                                                        destinationPathFoto = GetDestinationPath(namefoto, "ProfilePicture");
-                                                                        File.Copy(imagepath, destinationPathFoto, true);
-                                                                   
-                                                                    }
-
-                                                                    //Checar digital (alteração)
-                                                                    if (alterFinger == true)
-                                                                    {
-                                                                         //--IMPRESSÃODIGITAL
-                                                                    //Criar a pasta para armazenar a impressão
-                                                                    //Pegar o folder da aplicação
-                                                                    var applicationPathF = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                                                                    var dirf = new System.IO.DirectoryInfo(System.IO.Path.Combine(applicationPathF, "FingerPrints"));
-                                                                    if (!dirf.Exists)
-                                                                        dirf.Create();
-                                                                    //Copiar para o diretório do sistema
-                                                                    namefinger = System.IO.Path.GetFileName(fingerpath);
-                                                                    destinationPathFinger = GetDestinationPath(namefinger, "FingerPrints");
-                                                                    File.Copy(fingerpath, destinationPathFinger, true);
-
-                                                                    }
-
-                                                                    //A-T-U-A-L-I-Z-A-R
-                                                                    //Checar se foi upado uma Foto
-                                                                    SQL_UPDATE = "update agente set NOME = :nome, SEXO = :sexo, DATA_NASCIMENTO = :data_nascimento, RG = :rg, CPF = :cpf, TIPO_SANGUINEO = :tipo_sanguineo, ETNIA = :etnia, ESTADO_CIVIL = :estado_civil, CEP = :cep, LOGRADOURO = :logradouro, NUMERO = :numero, COMPLEMENTO = :complemento, BAIRRO = :bairro, CIDADE = :cidade, UF = :uf, FOTOAGENTE = :fotoagente, IMPRESSAOAGENTE = :impressaoagente, CARGO = :cargo where id_Agente=" + id;
-
-                                                                    //Acessar a classe TO 
-                                                                    Agente objAgente = new Agente();
-                                                                    objAgente.setNome(txtNome.Text);
-                                                                    if (rdbMasc.IsChecked == true)
-                                                                    {
-                                                                        objAgente.setSexo("Masculino");
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        objAgente.setSexo("Feminino");
-                                                                    }
-
-                                                                    //Coletar dados digitados
-                                                                    objAgente.setNascismento(txtNascimento.Text);
-                                                                    objAgente.setRg(txtRg.Text);
-                                                                    objAgente.setCpf(txtCpf.Text);
-                                                                    objAgente.settipoSanguineo(cmbTipoSangue.Text);
-                                                                    objAgente.setEtnia(cmbEtnia.Text);
-                                                                    objAgente.setestadoCivil(cmbEstadoCivil.Text);
-                                                                    objAgente.setCargo(cmbCargo.Text);
-                                                                    objAgente.setcep(txtCep.Text);
-                                                                    objAgente.setLogradouro(txtLogradouro.Text);
-                                                                    objAgente.setNumero(txtNumero.Text);
-                                                                    objAgente.setComplemento(txtComplemento.Text);
-                                                                    objAgente.setBairro(txtBairro.Text);
-                                                                    objAgente.setCidade(txtCidade.Text);
-                                                                    objAgente.setuf(cmbUf.Text);
-                                                                    objAgente.setFoto(destinationPathFoto.ToString());
-                                                                    objAgente.setimpressaodigital(destinationPathFinger.ToString());
-
-                                                                    //Criando Conexão Com o banco de dados
-                                                                    OracleConnection Oracon = new OracleConnection(oradb);
-
-                                                                    //Ações 
-                                                                    try
-                                                                    {
-                                                                        //Abrir conexão com o banco de dados e inserir dados digitados
-                                                                        Oracon.Open();
-                                                                        OracleCommand insertCommand = new OracleCommand(SQL_UPDATE, Oracon);
-                                                                        insertCommand.Parameters.Add("nome", objAgente.getNome());
-                                                                        insertCommand.Parameters.Add("sexo", objAgente.getSexo());
-                                                                        insertCommand.Parameters.Add("data_nascimento", objAgente.getNascimento());
-                                                                        insertCommand.Parameters.Add("rg", objAgente.getRg());
-                                                                        insertCommand.Parameters.Add("cpf", objAgente.getCpf());
-                                                                        insertCommand.Parameters.Add("tipo_sanguineo", objAgente.gettipoSanguineo());
-                                                                        insertCommand.Parameters.Add("etnia", objAgente.getEtnia());
-                                                                        insertCommand.Parameters.Add("estado_civil", objAgente.getestadoCivil());
-                                                                        insertCommand.Parameters.Add("cep", objAgente.getcep());
-                                                                        insertCommand.Parameters.Add("logradouro", objAgente.getLogradouro());
-                                                                        insertCommand.Parameters.Add("numero", objAgente.getNumero());
-                                                                        insertCommand.Parameters.Add("complemento", objAgente.getComplemento());
-                                                                        insertCommand.Parameters.Add("bairro", objAgente.getBairro());
-                                                                        insertCommand.Parameters.Add("cidade", objAgente.getCidade());
-                                                                        insertCommand.Parameters.Add("uf", objAgente.getuf());
-                                                                        insertCommand.Parameters.Add("fotoagente", objAgente.getFoto());
-                                                                        insertCommand.Parameters.Add("impressaoagente", objAgente.getimpressaDigital());
-                                                                        insertCommand.Parameters.Add("cargo", objAgente.getCargo());
-                                                                        //ESSE CAMPO ABAIXO NÃO É OBRIGATÓRIO POIS SERÁ PREENCHIDO AUTOMATICAMENTE
-                                                                        //insertCommand.Parameters.Add("status", objAgente.getStatus());
-                                                                        insertCommand.ExecuteNonQuery();
-
-                                                                        //Fechar conexão com o banco de dados
-                                                                        Oracon.Close();
-                                                                        await this.ShowMessageAsync("Aviso", "Agente atualizado com sucesso!");
-                                                                        this.MetroWindow_Loaded(null, null);
-                                                                        this.btnLimpar_Click(null, null);
-                                                                        gConsultar.IsSelected = true;
-
-                                                                    }
-                                                                    catch (OracleException orclEx)
-                                                                    {
-                                                                        System.Windows.MessageBox.Show(orclEx.Message);
-                                                                    }
+                                                                    objAgente.setSexo("Feminino");
                                                                 }
-                                                                
+
+                                                                //Coletar dados digitados
+                                                                objAgente.setNascismento(txtNascimento.Text);
+                                                                objAgente.setRg(txtRg.Text);
+                                                                objAgente.setCpf(txtCpf.Text);
+                                                                objAgente.settipoSanguineo(cmbTipoSangue.Text);
+                                                                objAgente.setEtnia(cmbEtnia.Text);
+                                                                objAgente.setestadoCivil(cmbEstadoCivil.Text);
+                                                                objAgente.setCargo(cmbCargo.Text);
+                                                                objAgente.setcep(txtCep.Text);
+                                                                objAgente.setLogradouro(txtLogradouro.Text);
+                                                                objAgente.setNumero(txtNumero.Text);
+                                                                objAgente.setComplemento(txtComplemento.Text);
+                                                                objAgente.setBairro(txtBairro.Text);
+                                                                objAgente.setCidade(txtCidade.Text);
+                                                                objAgente.setuf(cmbUf.Text);
+                                                                objAgente.setFoto(destinationPathFoto.ToString());
+                                                                objAgente.setimpressaodigital(destinationPathFinger.ToString());
+
+                                                                //Criando Conexão Com o banco de dados
+                                                                OracleConnection Oracon = new OracleConnection(oradb);
+
+                                                                //Ações 
+                                                                try
+                                                                {
+                                                                    //Abrir conexão com o banco de dados e inserir dados digitados
+                                                                    Oracon.Open();
+                                                                    OracleCommand insertCommand = new OracleCommand(SQL_UPDATE, Oracon);
+                                                                    insertCommand.Parameters.Add("nome", objAgente.getNome());
+                                                                    insertCommand.Parameters.Add("sexo", objAgente.getSexo());
+                                                                    insertCommand.Parameters.Add("data_nascimento", objAgente.getNascimento());
+                                                                    insertCommand.Parameters.Add("rg", objAgente.getRg());
+                                                                    insertCommand.Parameters.Add("cpf", objAgente.getCpf());
+                                                                    insertCommand.Parameters.Add("tipo_sanguineo", objAgente.gettipoSanguineo());
+                                                                    insertCommand.Parameters.Add("etnia", objAgente.getEtnia());
+                                                                    insertCommand.Parameters.Add("estado_civil", objAgente.getestadoCivil());
+                                                                    insertCommand.Parameters.Add("cep", objAgente.getcep());
+                                                                    insertCommand.Parameters.Add("logradouro", objAgente.getLogradouro());
+                                                                    insertCommand.Parameters.Add("numero", objAgente.getNumero());
+                                                                    insertCommand.Parameters.Add("complemento", objAgente.getComplemento());
+                                                                    insertCommand.Parameters.Add("bairro", objAgente.getBairro());
+                                                                    insertCommand.Parameters.Add("cidade", objAgente.getCidade());
+                                                                    insertCommand.Parameters.Add("uf", objAgente.getuf());
+                                                                    insertCommand.Parameters.Add("fotoagente", objAgente.getFoto());
+                                                                    insertCommand.Parameters.Add("impressaoagente", objAgente.getimpressaDigital());
+                                                                    insertCommand.Parameters.Add("cargo", objAgente.getCargo());
+                                                                    //ESSE CAMPO ABAIXO NÃO É OBRIGATÓRIO POIS SERÁ PREENCHIDO AUTOMATICAMENTE
+                                                                    //insertCommand.Parameters.Add("status", objAgente.getStatus());
+                                                                    insertCommand.ExecuteNonQuery();
+
+                                                                    //Fechar conexão com o banco de dados
+                                                                    Oracon.Close();
+                                                                    await this.ShowMessageAsync("Aviso", "Agente atualizado com sucesso!");
+                                                                    this.MetroWindow_Loaded(null, null);
+                                                                    this.btnLimpar_Click(null, null);
+                                                                    gConsultar.IsSelected = true;
+
+                                                                }
+                                                                catch (OracleException orclEx)
+                                                                {
+                                                                    System.Windows.MessageBox.Show(orclEx.Message);
+                                                                }
                                                             }
+
                                                         }
-                                                    }
-                                                    else
-                                                    {
-                                                        await this.ShowMessageAsync("Aviso", "Cidade incorreta!");
-                                                        txtCidade.Focus();
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    await this.ShowMessageAsync("Aviso", "Bairro incorreto!");
-                                                    txtBairro.Focus();
+                                                    await this.ShowMessageAsync("Aviso", "Cidade incorreta!");
+                                                    txtCidade.Focus();
                                                 }
-                                           
                                         }
                                         else
                                         {
-                                           await this.ShowMessageAsync("Aviso", "Formato de número incorreto!");
-                                           txtNumero.Focus();
+                                            await this.ShowMessageAsync("Aviso", "Formato de número incorreto!");
+                                            txtNumero.Focus();
                                         }
-                                    }
-                                    else
-                                    {
-                                       await this.ShowMessageAsync("Aviso", "Logradouro incorreto!");
-                                       txtLogradouro.Focus();
-                                    }
                                 }
                                 else
                                 {

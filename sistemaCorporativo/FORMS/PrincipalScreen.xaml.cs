@@ -20,6 +20,8 @@ using sistemaCorporativo.FORMS;
 using MahApps.Metro.Actions;
 using MahApps.Metro.Converters;
 using MahApps.Metro;
+using Oracle.DataAccess.Client;
+using Oracle.DataAccess.Types;
 
 
 
@@ -38,13 +40,20 @@ namespace sistemaCorporativo.FORMS.principalScreen
             user = usuario.ToString();
         }
 
+        //String para buscar informações do usuario
+        private string SQL_SEARCH = "select id_Agente from login_Agente where nome_User = :user";
+        //Criar string com o endereço do banco
+        private string oradb = "Data Source=(DESCRIPTION="
+               + "(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))"
+               + "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl.itb.com)));"
+               + "User Id=matheus_23177;Password=123456;";
 
         private void AgenteMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CadAgente cadAgente = new CadAgente();
             cadAgente.ShowDialog();
         }
-
+        
 
         private void OcorrenciaMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -222,7 +231,13 @@ namespace sistemaCorporativo.FORMS.principalScreen
 
         private void PrincipalScreen1_Loaded(object sender, RoutedEventArgs e)
         {
-            
+            OracleConnection Oracon = new OracleConnection(oradb);
+            Oracon.Open();
+
+            OracleCommand cmd = new OracleCommand(SQL_SEARCH, Oracon);
+            cmd.Parameters.Add("user", user);
+            OracleDataReader read = cmd.ExecuteReader();
+            read.Read();
         }	  
     }
 }
