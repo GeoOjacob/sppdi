@@ -128,7 +128,7 @@ namespace sistemaCorporativo.FORMS
             }
             cmbDevices.SelectedIndex = 0;
             cam = new VideoCaptureDevice();
-            VideoCapabilities Framesize;
+          
       
             
 

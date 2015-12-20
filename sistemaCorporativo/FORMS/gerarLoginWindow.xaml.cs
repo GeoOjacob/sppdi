@@ -49,6 +49,8 @@ namespace sistemaCorporativo.FORMS
         private string SQL_READ_AGENTE = "select * from AGENTE where id_Agente = :id";
         //Variável para criar o login
         private string SQL_INSERT_LOGIN = "insert into login_agente (id_LoginAgente, id_Agente, nome_User, senha_User, nivel_Acesso, CARGO_ID_CARGO, status) values (seq_LoginAgente.NEXTVAL, :idAgente, :nomeUser, :senhaUser, :nivelAcesso, :idCargo, :status)";
+         //Variável para criar o perfil
+        private string SQL_INSERT_PROFILE = "insert into perfil_agente (id_PerfilAgente, id_Agente, nivel_Agente, casos_Resolvidos) values(seq_PerfilAgente.NEXTVAL, :idAgente, 1, 0)";
         //String para checar se o login ja existe
         private string SQL_CHECK_LOGIN = "SELECT count(f.ID_AGENTE) as total FROM LOGIN_AGENTE f where f.ID_AGENTE = :id";
         //Variável que receberá o nome do agente 
@@ -104,6 +106,10 @@ namespace sistemaCorporativo.FORMS
                         insert.Parameters.Add("idCargo", "2");
                         insert.Parameters.Add("status", "1 ");
                         insert.ExecuteNonQuery();
+
+                        OracleCommand profile = new OracleCommand(SQL_INSERT_PROFILE, Oracon);
+                        profile.Parameters.Add("idAgente", id);
+                        profile.ExecuteNonQuery();
 
                         Oracon.Close();
 

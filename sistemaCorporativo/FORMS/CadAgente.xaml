@@ -510,7 +510,7 @@
                                 <Button x:Name="btnClose" Style="{DynamicResource MetroCircleButtonStyle}" Content="X" HorizontalAlignment="Left" VerticalAlignment="Top" Width="33" Height="34" Click="btnClose_Click" Margin="297,0,0,0"/>
                             </Grid>
                         </Canvas>
-                        <TextBox x:Name="txtRg" HorizontalAlignment="Left" Height="26" Margin="18,121,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Grid.RowSpan="2" Grid.ColumnSpan="2" TabIndex="5" KeyDown="txtRg_KeyDown"/>
+                        <TextBox x:Name="txtRg" HorizontalAlignment="Left" Height="26" Margin="18,121,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Grid.RowSpan="2" Grid.ColumnSpan="2" TabIndex="1"/>
                     </Grid>
                 </Grid>
             </TabItem>
