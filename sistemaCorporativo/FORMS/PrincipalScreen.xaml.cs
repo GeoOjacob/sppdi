@@ -17,6 +17,7 @@ using MahApps.Metro.Behaviours;
 using sistemaCorporativo;
 using sistemaCorporativo.FORMS.cadAgente;
 using sistemaCorporativo.FORMS;
+using sistemaCorporativo.UTIL.nameAndLastName;
 using MahApps.Metro.Actions;
 using MahApps.Metro.Converters;
 using MahApps.Metro;
@@ -40,14 +41,20 @@ namespace sistemaCorporativo.FORMS.principalScreen
             user = usuario.ToString();
         }
 
-        //String para buscar informações do usuario
-        private string SQL_SEARCH = "select id_Agente from login_Agente where nome_User = :user";
         //Criar string com o endereço do banco
         private string oradb = "Data Source=(DESCRIPTION="
                + "(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))"
                + "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl.itb.com)));"
                + "User Id=matheus_23177;Password=123456;";
-
+        //Strings para informações do usuario
+        int casosResolvidos;
+        string cargo;
+        string idAgente;
+        string name;
+        string nivel;
+        string idCargo;
+        
+        
         private void AgenteMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CadAgente cadAgente = new CadAgente();
@@ -232,12 +239,49 @@ namespace sistemaCorporativo.FORMS.principalScreen
         private void PrincipalScreen1_Loaded(object sender, RoutedEventArgs e)
         {
             OracleConnection Oracon = new OracleConnection(oradb);
+
+            //String para buscar informações do usuario
+            string SQL_SEARCH = "select id_Agente from login_Agente where nome_User = '" + user + "'";
             Oracon.Open();
 
-            OracleCommand cmd = new OracleCommand(SQL_SEARCH, Oracon);
-            cmd.Parameters.Add("user", user);
-            OracleDataReader read = cmd.ExecuteReader();
+            OracleCommand comando = new OracleCommand(SQL_SEARCH, Oracon);
+            OracleDataReader read = comando.ExecuteReader();
             read.Read();
+            idAgente = Convert.ToString(read[0].ToString());
+
+            //String para buscar informações do usuario
+            string SQL_SEARCH_ADVANCED = "select a.id_Agente, a.nome, l.nome_User, l.cargo_id_cargo from agente a Join LOGIN_AGENTE l on (l.id_Agente = '" + idAgente + "' and l.ID_AGENTE = a.ID_AGENTE and a.status != 0)";
+            string SQL_PROFILE_SEARCH = "select nivel_Agente, casos_resolvidos from perfil_Agente where id_Agente ='"+idAgente+"'";
+            OracleCommand cmdConsulta = new OracleCommand(SQL_SEARCH_ADVANCED, Oracon);
+            OracleCommand cmdProfile = new OracleCommand(SQL_PROFILE_SEARCH, Oracon);
+            OracleDataReader reader = cmdConsulta.ExecuteReader();
+            OracleDataReader rProfile = cmdProfile.ExecuteReader();
+            reader.Read();
+            rProfile.Read();
+
+            name = Convert.ToString(reader[1].ToString());
+            idCargo = Convert.ToString(reader[3].ToString());
+            nivel = Convert.ToString(rProfile[0].ToString());
+            casosResolvidos = Convert.ToInt32(rProfile[1].ToString());
+
+            string SQL_SEARCH_CARGO = "select id_Cargo, nome_Cargo from Cargo where status != 0 and ID_CARGO ='" + idCargo + "'";
+            OracleCommand cmdCargo = new OracleCommand(SQL_SEARCH_CARGO, Oracon);
+            OracleDataReader rCargo = cmdCargo.ExecuteReader();
+            rCargo.Read();
+
+            cargo = Convert.ToString(rCargo[1].ToString());
+
+            Oracon.Close();
+
+            name = nameAndLastName.FormataNome(name);            
+        }
+
+        private void FlyoutAgente_Loaded(object sender, RoutedEventArgs e)
+        {
+            lblNomeAgente.Content = name.ToString();
+            lblNivel.Content = nivel.ToString();
+            lblCargo.Content = cargo.ToString();
+            lblCasosResolvidos.Content = casosResolvidos.ToString();
         }	  
     }
 }

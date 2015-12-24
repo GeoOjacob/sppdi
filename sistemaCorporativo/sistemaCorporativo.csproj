@@ -158,6 +158,7 @@
     <Compile Include="TO\Agente.cs" />
     <Compile Include="UTIL\checkPassword.cs" />
     <Compile Include="TO\Viatura.cs" />
+    <Compile Include="UTIL\nameAndLastName.cs" />
     <Page Include="FORMS\CadAgente.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -225,16 +225,19 @@
 
     <Controls:MetroWindow.Flyouts>
         <Controls:FlyoutsControl x:Name="FlyoutPrincipal">
-            <Controls:Flyout x:Name="flyoutAgente" Width="304.5" Grid.RowSpan="2" AllowDrop="False" AllowFocusElement="True" IsPinned="False" AnimateOnPositionChange="True" Theme="Adapt">
+            <Controls:Flyout x:Name="flyoutAgente" Width="304.5" Grid.RowSpan="2" AllowDrop="False" AllowFocusElement="True" IsPinned="False" AnimateOnPositionChange="True" Theme="Adapt" Loaded="FlyoutAgente_Loaded">
                 <Canvas>
-                    <Label Content="Nome do Agente" Canvas.Left="68" Canvas.Top="162" Width="171.167" FontFamily="Segoe WP Light" FontSize="21.333"/>
-                    <Label Content="Nível:" Canvas.Left="10" Canvas.Top="234.22" FontFamily="Segoe WP SemiLight" FontSize="13.333"/>
-                    <Label Content="Cargo:" Canvas.Left="10" Canvas.Top="261.953" FontFamily="Segoe WP SemiLight" FontSize="13.333"/>
-                    <Button x:Name="btnFzrLogoff" Content="Fazer logoff" Canvas.Top="619" Width="304.5" Height="34.333" FontSize="10.667" FontFamily="Segoe UI Light" Background="#FF262626" Foreground="White" Click="btnFzrLogoff_Click"/>
-                    <Controls:ToggleSwitch x:Name="tgsTema" Header="Tema Claro" Canvas.Left="10" Canvas.Top="509.72" Height="64.28" Width="109.83" Checked="tgsTema_Checked" IsCheckedChanged="tgsTema_IsCheckedChanged" Content="" />
                     <Image Height="157" Canvas.Left="68" Width="168.667" Source="/sistemaCorporativo;component/IMAGES/User_Login adapt.png"/>
-                    <Label Content="Casos resolvidos:" Canvas.Left="10" Canvas.Top="289.686" FontFamily="Segoe WP SemiLight" FontSize="13.333"/>
-
+                    <Label x:Name="lblNomeAgente" Content="" Canvas.Left="60.1" Canvas.Top="162" Width="171.167" FontFamily="Segoe WP Light" FontSize="21.333" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    <Label Content="Nível:" Canvas.Left="10" Canvas.Top="234.22" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Label x:Name="lblNivel" Content="" Canvas.Left="47" Canvas.Top="234.22" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Label Content="Cargo:" Canvas.Left="10" Canvas.Top="261.953" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Label x:Name="lblCargo" Content="" Canvas.Left="54" Canvas.Top="261.953" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Label Content="Casos resolvidos:" Canvas.Left="10" Canvas.Top="289.686" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Label x:Name="lblCasosResolvidos" Content="" Canvas.Left="113" Canvas.Top="289.686" FontFamily="Segoe WP SemiLight" FontSize="14"/>
+                    <Controls:ToggleSwitch x:Name="tgsTema" Header="Tema Claro" Canvas.Left="10" Canvas.Top="509.72" Height="64.28" Width="109.83" Checked="tgsTema_Checked" IsCheckedChanged="tgsTema_IsCheckedChanged" Content="" />
+                    <Button x:Name="btnFzrLogoff" Content="Fazer logoff" Canvas.Top="619" Width="304.5" Height="34.333" FontSize="10.667" FontFamily="Segoe UI Light" Background="#FF262626" Foreground="White" Click="btnFzrLogoff_Click"/>
+                    
                 </Canvas>
             </Controls:Flyout>
         </Controls:FlyoutsControl>
